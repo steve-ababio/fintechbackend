@@ -3,7 +3,7 @@ export type User = {
     email:string,
     password:string
 }
-export type TransactionDetails = {
+export type TransferDetails = {
     sender:string,
     receipient:string,
     amount:string
@@ -12,5 +12,4 @@ export type Transaction = {
     receipient:string, 
     amount:number,
     timestamp:Date,
-    idempotencykey:string
 }

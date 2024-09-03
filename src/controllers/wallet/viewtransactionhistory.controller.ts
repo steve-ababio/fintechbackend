@@ -1,19 +1,7 @@
 import {ParamsDictionary} from "express-serve-static-core";
 import {Response,Request} from "express";
-import { prisma } from "../../lib/prisma";
+import { fetchTransactionHistory } from "../../services/wallet/viewtransactionhistory/viewtransactionhistory.services";
 
-async function fetchTransactionHistory(username:string){
-    try{
-        const transactionhistory = await prisma.transaction.findMany({
-            where:{
-                username
-            }
-        });
-        return transactionhistory;
-    }catch(error){
-        //handle error
-    }
-}
 export async function viewTransactionHistory(req:Request<ParamsDictionary,any,{username:string}>, res:Response){
     const {username} = req.body;
     const transactionhistory = await fetchTransactionHistory(username);
