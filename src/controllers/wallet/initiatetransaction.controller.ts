@@ -1,19 +1,22 @@
 import {ParamsDictionary} from "express-serve-static-core";
 import {Request,Response} from "express";
 import { Transaction, TransferDetails } from "../../types/types";
-import { processTransaction, storeTransaction, validateWalletBalance } from "../../services/wallet/transaction/transaction.services";
+import { getRecepientId, processTransaction, storeTransaction, validateWalletBalance } from "../../services/wallet/transaction/transaction.services";
 
 export async function initiateTransaction(req:Request<ParamsDictionary,any,TransferDetails>,res:Response){
-    const {sender,receipient,amount} = req.body;
+    const {senderid,receipient,amount} = req.body;
     const idempotencykey = req.header("Idempotency-Key") as string;
     const sendingamount = parseFloat(amount);
-    const isfundssufficient = await validateWalletBalance(sender,sendingamount);
+    const isfundssufficient = await validateWalletBalance(senderid,sendingamount);
 
     if(!isfundssufficient){
         return res.status(400).json({message:"Insufficient funds" });
     }
-    
-    const istransactionsuccessful = await processTransaction(sendingamount,receipient,sender);
+    const result = await getRecepientId(receipient);
+    if(!result){
+        return res.status(400).json({message:"Receipient does not exist"});
+    }
+    const istransactionsuccessful = await processTransaction(sendingamount,result.id,senderid);
     if(!istransactionsuccessful){
         return res.status(500).json({message:"Failed to initiate transaction" });
     }

@@ -1,21 +1,37 @@
 import { prisma } from "../../../lib/prisma";
 import { Transaction } from "../../../types/types";
 
-export async function validateWalletBalance(sender:string,amount:number){
+export async function fetchSenderWalletBalance(userid:string){
     try{
-        const balance = await fetchSenderWalletBalance(sender);
+        const balance = await prisma.wallet.findUnique({
+            where:{
+                userid
+            },
+            select:{
+                balance:true
+            }
+        });
+        return balance;
+    }catch(error){
+        //handle error
+        console.log(error);
+    }
+}
+export async function validateWalletBalance(senderid:string,amount:number){
+    try{
+        const result = await fetchSenderWalletBalance(senderid);
+        const {balance} = result!;
         return balance >= amount;
     }catch(error){
         //handle error
         console.log(error);
     }
 }
-
-export async function updateReceipientBalance(receiver:string,amount:number){
+export async function updateReceipientBalance(recepientid:string,amount:number){
     try{
         const result = await prisma.wallet.update({
-            where:{
-                username:receiver
+            where:{ 
+                userId:recepientid
             },
             data:{
                 balance:{
@@ -29,11 +45,11 @@ export async function updateReceipientBalance(receiver:string,amount:number){
         console.log(error);
     }
 }
-export async function updateSenderBalance(sender:string,amount:number){
+export async function updateSenderBalance(userId:string,amount:number){
     try{
         const result = await prisma.wallet.update({
             where:{
-                username:sender
+                userId
             },
             data:{
                 balance:{
@@ -47,28 +63,27 @@ export async function updateSenderBalance(sender:string,amount:number){
         console.log(error);
     }
 }
-export async function processTransaction(amount:number,sender:string,receiver:string){
+export async function processTransaction(amount:number,senderid:string,receipientid:string){
     try{
-        const[senderwalletupdate,receipientwalletupdate] = await Promise.all([updateSenderBalance(sender,amount),updateReceipientBalance(receiver,amount)]);
+        const[senderwalletupdate,receipientwalletupdate] = await Promise.all([updateSenderBalance(senderid,amount),updateReceipientBalance(receipientid,amount)]);
         return senderwalletupdate && receipientwalletupdate;
     }catch(error){
         //handle error
     }
 }
-export async function fetchSenderWalletBalance(sender:string){
+export async function getRecepientId(receipient:string){
     try{
-        const balance = await prisma.user.findUnique({
+        const result = await prisma.user.findUnique({
             where:{
-                username:sender
+                username:receipient
             },
             select:{
-                balance:true
+                id:true
             }
         });
-        return balance;
+        return result;
     }catch(error){
         //handle error
-        console.log(error);
     }
 }
 export async function storeTransaction(transaction:Transaction){

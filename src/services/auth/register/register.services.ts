@@ -16,7 +16,8 @@ export async function createUser({username,email,password}:User){
         const result = await prisma.user.create({
             username,
             email,
-            password
+            password,
+            
         });
         return result;
     }catch(error){

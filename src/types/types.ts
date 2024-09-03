@@ -4,7 +4,7 @@ export type User = {
     password:string
 }
 export type TransferDetails = {
-    sender:string,
+    senderid:string,
     receipient:string,
     amount:string
 }

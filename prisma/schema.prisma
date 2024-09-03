@@ -12,20 +12,21 @@ model User {
     email     String @unique
     password String
     confirmed Boolean
+    wallet Wallet?
     transaction Transaction[]
 }
 model Wallet{
     id       String   @id @default(uuid())
     balance Float
     currency String
-    userId String
+    user User @relation(fields:[userid],references: [id],onDelete:Cascade,onUpdate:Cascade)
+    userid String @unique
 }
 model Transaction{
     id String @id @default(uuid())
     amount Int
-    idempotencykey String @unique
     timestamp DateTime
     user User @relation(fields: [userid],references: [id],onDelete:Cascade,onUpdate:Cascade)
-    userid String
+    userid String 
     receipient String
 }
