@@ -2,26 +2,36 @@ import {ParamsDictionary} from "express-serve-static-core";
 import {Request,Response} from "express";
 import { Transaction, TransferDetails } from "../../typings/types";
 import { getRecepientId, processTransaction, storeTransactionDetails, validateWalletFunds } from "../../services/wallet/transaction/transaction.services";
+import { idempotencykeystore } from "../../utils/store/store";
 
 export async function initiateTransaction(req:Request<ParamsDictionary,any,TransferDetails>,res:Response){
     const senderid = req.userid!;
+    const idempotencykey = req.headers["idempotency-key"] as string;
     const {receipientname,amount} = req.body;
     const sendingamount = parseFloat(amount);
     try{
         const isfundssufficient = await validateWalletFunds(senderid,sendingamount);
         if(!isfundssufficient){
-            return res.status(400).json({message:"You cannot proceed with transaction due to insufficient funds"});
+            const message = "You cannot proceed with transaction due to insufficient funds";
+            await idempotencykeystore.storeData(idempotencykey,message);
+            return res.status(400).json({message});
         }
         const receipient = await getRecepientId(receipientname);
         if(!receipient){
-            return res.status(400).json({message:"Receipient does not exist"});
+            const message = "Receipient does not exist";
+            await idempotencykeystore.storeData(idempotencykey,message);
+            return res.status(400).json({message});
         }
         if(Object.is(receipient.id,senderid)){
-            return res.status(400).json({message:"You cannot transfer funds to yourself"});
+            const message = "You cannot transfer funds to yourself";
+            await idempotencykeystore.storeData(idempotencykey,message);
+            return res.status(400).json({message});
         }
         const istransactionsuccessful = await processTransaction(sendingamount,senderid,receipient.id);
         if(!istransactionsuccessful){
-            return res.status(500).json({message:"Failed to initiate transaction" });
+            const message = "Failed to initiate transaction";
+            await idempotencykeystore.storeData(idempotencykey,message);
+            return res.status(500).json({message});
         }
         const transaction:Transaction = {
             amount:sendingamount,
@@ -30,7 +40,9 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
             timestamp:new Date(),
         }
         await storeTransactionDetails(transaction);
-        return res.status(200).json({message:"Transaction successful"});
+        const message = "Transaction successful";
+        await idempotencykeystore.storeData(idempotencykey,message);
+        return res.status(200).json({message});
     }catch(error){
         console.error(error);
         res.status(500).json({message:"Internal Server Error"});
