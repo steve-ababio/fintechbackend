@@ -4,12 +4,12 @@ export type User = {
     password:string
 }
 export type TransferDetails = {
-    senderid:string,
-    receipient:string,
+    receipientname:string,
     amount:string
 }
 export type Transaction = {
     receipient:string, 
     amount:number,
     timestamp:Date,
+    userid:string
 }

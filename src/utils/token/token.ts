@@ -7,6 +7,6 @@ export function generateJWTToken<T extends string|object|Buffer>(payload:T,secre
     return token;
 }
 export function verifyToken(token:string,secret:string){
-    const payload = verify(token,secret);
+    const payload = verify(token,secret)
     return payload as {userid:string};
 }
