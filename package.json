@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx ts-node ./src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,9 +25,12 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "expiry-map": "^2.0.0",
     "express": "^4.19.2",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.14",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "ts-node": "^10.9.2"
   }
 }

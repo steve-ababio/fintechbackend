@@ -47,19 +47,34 @@ export async function processTransaction(amount:number,senderid:string,receipien
     const[senderwalletupdate,receipientwalletupdate] = await Promise.all([updateSenderBalance(senderid,amount),updateReceipientBalance(receipientid,amount)]);
     return senderwalletupdate && receipientwalletupdate;
 }
-export async function getRecepientId(receipient:string){
+export async function getRecepientDetails(receipient:string){
     const result = await prisma.user.findUnique({
         where:{
             username:receipient
         },
         select:{
-            id:true
+            id:true,
+            email:true
+        }
+    });
+    return result;
+}
+export async function getSenderDetails(senderid:string){
+    const result = await prisma.user.findUnique({
+        relationLoadStrategy:"join",
+        where:{
+            id:senderid
+        },
+        select:{
+            email:true,
+            username:true,
+            wallet:true
         }
     });
     return result;
 }
 export async function storeTransactionDetails(transaction:Transaction){
     await prisma.transaction.create({
-        data:transaction
+        data:transaction,
     });
 }

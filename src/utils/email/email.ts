@@ -25,5 +25,27 @@ export async function sendVerificationEmail(toEmail: string,userid:string) {
         sender:process.env.USER,
         subject:"Verify your email",
         html:`Please click the following link to verify your email: <a href='${verificationurl}'>${verificationurl}</a>`
-    })
+    });
+}
+
+export async function sendReceivedMoneyNotification(toEmail:string,currency:string,sendername:string,amount:number){
+    const transporter = createTransporter();
+    await transporter.sendMail({
+        from:process.env.USER,
+        to:toEmail,
+        sender:process.env.USER,
+        subject:"Transaction processed successfully",
+        html:`<p>You have received an amount of ${amount}${currency} from ${sendername}</p>`
+    }); 
+}
+export async function sendProcessedTransactionNotification(toEmail:string,currency:string,receipientname:string,amount:number){
+    const transporter = createTransporter();
+    await transporter.sendMail({
+        from:process.env.USER,
+        to:toEmail,
+        sender:process.env.USER,
+        subject:"Transaction processed successfully",
+        html:`<p>You have transferred an amount of ${amount}${currency} to ${receipientname}</p>`
+    });
+
 }
