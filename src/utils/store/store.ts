@@ -3,13 +3,13 @@ import Cache from "expiry-map";
 const TTL = 180000; //3 minutes;
 class IdempotencykeyStore {
     private store = new Cache(180000);
-    getData(idempotencykey:string){
+    getIdempotencyKey(idempotencykey:string){
         return this.store.get(idempotencykey);
     }
-    storeData<T>(idempotencykey:string,response:T){
+    storeIdempotencyKey<T>(idempotencykey:string,response:T){
         this.store.set(idempotencykey,response);
     }
-    checkData(idempotencykey:string){
+    checkIdempotencyKey(idempotencykey:string){
         return this.store.has(idempotencykey);
     }
 }

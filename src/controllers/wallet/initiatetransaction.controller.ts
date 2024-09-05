@@ -18,7 +18,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeData(idempotencykey,response);
+            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         const [receipient,sender] = await Promise.all([getRecepientDetails(receipientname),getSenderDetails(senderid)]);
@@ -28,7 +28,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeData(idempotencykey,response);
+            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         if(Object.is(receipient.id,senderid)){
@@ -37,7 +37,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeData(idempotencykey,response);
+            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         const istransactionsuccessful = await processTransaction(sendingamount,senderid,receipient.id);
@@ -47,7 +47,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeData(idempotencykey,response);
+            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(500).json({response});
         }
         const transaction:Transaction = {
@@ -62,7 +62,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
             success:true,
             message
         }
-        await idempotencykeystore.storeData(idempotencykey,response);
+        await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
         
         Promise.all([
             sendReceivedMoneyNotification(receipient.email,sender!.wallet!.currency!,sender!.username!,sendingamount),
