@@ -18,7 +18,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
+            idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         const [receipient,sender] = await Promise.all([getRecepientDetails(receipientname),getSenderDetails(senderid)]);
@@ -28,7 +28,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
+            idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         if(Object.is(receipient.id,senderid)){
@@ -37,7 +37,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
+            idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(400).json({response});
         }
         const istransactionsuccessful = await processTransaction(sendingamount,senderid,receipient.id);
@@ -47,23 +47,22 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
                 success:false,
                 message
             }
-            await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
+            idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
             return res.status(500).json({response});
         }
+        const message = "Transaction successful";
+        const response = {
+            success:true,
+            message
+        };
+        idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
         const transaction:Transaction = {
             amount:sendingamount,
             receipient:receipientname,
             userid:senderid,
             timestamp:new Date(),
         }
-        await storeTransactionDetails(transaction);
-        const message = "Transaction successful";
-        const response = {
-            success:true,
-            message
-        }
-        await idempotencykeystore.storeIdempotencyKey(idempotencykey,response);
-        
+        storeTransactionDetails(transaction);
         Promise.all([
             sendReceivedMoneyNotification(receipient.email,sender!.wallet!.currency!,sender!.username!,sendingamount),
             sendProcessedTransactionNotification(sender!.email,sender!.wallet!.currency,receipientname,sendingamount)
