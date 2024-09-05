@@ -67,7 +67,7 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
             sendReceivedMoneyNotification(receipient.email,sender!.wallet!.currency!,sender!.username!,sendingamount),
             sendProcessedTransactionNotification(sender!.email,sender!.wallet!.currency,receipientname,sendingamount)
         ])
-        return res.status(200).json({message});
+        return res.status(200).json({response});
     }catch(error){
         console.error(error);
         res.status(500).json({message:"Internal Server Error"});
