@@ -14,25 +14,41 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
         const isfundssufficient = await validateWalletFunds(senderid,sendingamount);
         if(!isfundssufficient){
             const message = "You cannot proceed with transaction due to insufficient funds";
-            await idempotencykeystore.storeData(idempotencykey,message);
-            return res.status(400).json({message});
+            const response = {
+                success:false,
+                message
+            }
+            await idempotencykeystore.storeData(idempotencykey,response);
+            return res.status(400).json({response});
         }
         const [receipient,sender] = await Promise.all([getRecepientDetails(receipientname),getSenderDetails(senderid)]);
         if(!receipient){
             const message = "Receipient does not exist";
-            await idempotencykeystore.storeData(idempotencykey,message);
-            return res.status(400).json({message});
+            const response = {
+                success:false,
+                message
+            }
+            await idempotencykeystore.storeData(idempotencykey,response);
+            return res.status(400).json({response});
         }
         if(Object.is(receipient.id,senderid)){
             const message = "You cannot transfer funds to yourself";
-            await idempotencykeystore.storeData(idempotencykey,message);
-            return res.status(400).json({message});
+            const response = {
+                success:false,
+                message
+            }
+            await idempotencykeystore.storeData(idempotencykey,response);
+            return res.status(400).json({response});
         }
         const istransactionsuccessful = await processTransaction(sendingamount,senderid,receipient.id);
         if(!istransactionsuccessful){
             const message = "Failed to initiate transaction";
-            await idempotencykeystore.storeData(idempotencykey,message);
-            return res.status(500).json({message});
+            const response = {
+                success:false,
+                message
+            }
+            await idempotencykeystore.storeData(idempotencykey,response);
+            return res.status(500).json({response});
         }
         const transaction:Transaction = {
             amount:sendingamount,
@@ -42,7 +58,11 @@ export async function initiateTransaction(req:Request<ParamsDictionary,any,Trans
         }
         await storeTransactionDetails(transaction);
         const message = "Transaction successful";
-        await idempotencykeystore.storeData(idempotencykey,message);
+        const response = {
+            success:true,
+            message
+        }
+        await idempotencykeystore.storeData(idempotencykey,response);
         
         Promise.all([
             sendReceivedMoneyNotification(receipient.email,sender!.wallet!.currency!,sender!.username!,sendingamount),

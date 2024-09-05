@@ -18,7 +18,6 @@ export async function signIn(req:Request<ParamsDictionary,any,User>, res:Respons
             return res.status(401).json({message:"Please verify your email"});
         }
         const match = await ComparePasswords(password,user.password);
-        console.log("match:",match);
         if(!match){
             return res.status(401).json(({message:"Please provide correct credentials"}))
         }

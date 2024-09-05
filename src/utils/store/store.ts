@@ -6,7 +6,7 @@ class IdempotencykeyStore {
     getData(idempotencykey:string){
         return this.store.get(idempotencykey);
     }
-    storeData(idempotencykey:string,response:string){
+    storeData<T>(idempotencykey:string,response:T){
         this.store.set(idempotencykey,response);
     }
     checkData(idempotencykey:string){
