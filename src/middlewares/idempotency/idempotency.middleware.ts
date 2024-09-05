@@ -2,7 +2,7 @@ import {Request,Response,NextFunction} from "express";
 import { idempotencykeystore } from "../../utils/store/store";
 
 async function checkIdempotencyKeyExistence(idempotencykey:string){
-    let response = await idempotencykeystore.getData(idempotencykey);
+    let response = await idempotencykeystore.getIdempotencyKey(idempotencykey);
     return response;
 }
 export async function checkIdempotencyKey(req:Request,res:Response,next:NextFunction){
